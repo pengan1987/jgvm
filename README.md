@@ -1,7 +1,9 @@
-# jgvm
-Automatically exported from code.google.com/p/jgvm
+# JGvm
+This responsivity show how to port GVmakerSE to HTML5 with CheerpJ, just two steps to make a runnable GVmakerSE in browser
+- Compile (slightly modified) GVmakerSE with Java 1.8
+- Convert JAR into JS, check the CheerpJ folder for details
 
-google code 似乎马上要关闭了，这个……还是做个备份吧
+The original code is from [Google Code](https://code.google.com/archive/p/jgvm/)
 
 ---
 **[GVmaker](http://www.ggv.com.cn/gvmaker/main.php?content=about_lava)** is a programming language on a PDA product series called '文曲星'. This PDA brand was very popular in China and belongs to _Beijing Golden Global View Computer Technology LTD._
@@ -14,7 +16,4 @@ Currently we have a workable J2SE & J2ME version due to EastSun's fantastic job.
 
 Android version is under construction based on the J2SE version. Search '**GVmakerAD**' in android market to install it.
 
-Sample GVmaker application could be downloaded [here](http://jgvm.googlecode.com/files/GVmaker_app.zip).
-
----
-[GVmaker_app.zip doanload from github](https://raw.githubusercontent.com/fwindpeak/jgvm/download/GVmaker_app.zip)
+Sample GVmaker application could be downloaded [here](https://9game.oss-us-west-1.aliyuncs.com/GVmaker_app.zip).

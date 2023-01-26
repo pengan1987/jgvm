@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>CheerpJ GVMaker</title>
+  <script src="https://cjrtnc.leaningtech.com/2.3/loader.js"></script>
+  <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jszip/3.7.1/jszip.min.js"
+    type="application/javascript"></script>
+  <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jszip-utils/0.1.0/jszip-utils.min.js"
+    type="application/javascript"></script>
+</head>
+
+<body>
+  <div id="cheerpjContainer"></div>
+  <div>
+    <p>加载进度：<span id="loadProgress"></span></p>
+    <p>选择Lav程序及其依赖的dat文件提交到模拟器，然后在模拟器中选File-Open，按“向上”按钮回到根目录，在str文件夹中就可以看到上传的文件，选择Lav文件即可运行</p>
+    <p>程序需要从海外CDN加载约20M资源文件，初次运行耗时较长，请耐心等待</p>
+    <input type="file" multiple="multiple" accept=".lav,.dat" />
+  </div>
+</body>
+<script>
+  async function loadZippedGame(zipPath) {
+    var response = await fetch(zipPath);
+    var data = response.blob();
+    var zip = await JSZip.loadAsync(data);
+    var files = []
+    zip.forEach(function (relativePath, file) {
+      files.push(file.name);
+    });
+    for (let index = 0; index < files.length; index++) {
+      var filename = files[index];
+      file = zip.file(filename);
+      fileu8 = await file.async("uint8array");
+      cheerpjAddStringFile('/str/' + filename, fileu8);
+    }
+  }
+
+  function showPreloadProgress(loadedFiles, totalFiles) {
+    let loadProgress = document.getElementById("loadProgress")
+    loadProgress.innerText = loadedFiles + " / " + totalFiles + " 个文件";
+    if (loadedFiles == totalFiles) {
+      //If you want auto run a Lava game when JGVM starts, put LAV file and all DAT file
+      //in a Zip package without any directory structure, the loadZippedGame function will
+      //copy them into /str path and ready for autoload
+      //console.log("Preload done, load zipped game for autoload")
+      //loadZippedGame("example.zip");
+    }
+  }
+
+  var cheerpjListener = { preloadProgress: showPreloadProgress };
+  var preloadList = ["/lt/runtime/rt.jar.jdk.js", "/lt/runtime/rt.jar.java.util.function.js", "/lts/rt.jar", "/lts/rt.jar.c0.txt", "/lts/rt.jar.c1.txt", "/lts/rt.jar.c100.txt", "/lts/rt.jar.c99.txt", "/lts/rt.jar.c84.txt", "/lts/rt.jar.c85.txt", "/lts/rt.jar.c86.txt", "/lts/rt.jar.c87.txt", "/lts/rt.jar.c88.txt", "/lts/rt.jar.c89.txt", "/lts/rt.jar.c90.txt", "/lts/rt.jar.c91.txt", "/lts/rt.jar.c92.txt", "/lts/rt.jar.c93.txt", "/lts/rt.jar.c94.txt", "/lts/rt.jar.c95.txt", "/lts/rt.jar.c96.txt", "/lts/rt.jar.c97.txt", "/lts/rt.jar.c98.txt", "/lts/rt.jar.c83.txt", "/lt/runtime/rt.jar.sun.reflect.js", "/lt/runtime/rt.jar.java.lang.js", "/lt/runtime/rt.jar.java.nio.file.js", "/lt/runtime/rt.jar.java.util.concurrent.js", "/lt/runtime/rt.jar.sun.net.js", "/lt/runtime/rt.jar.java.util.zip.js", "/lt/runtime/rt.jar.sun.nio.js", "/lt/runtime/rt.jar.javax.swing.js", "/lt/runtime/rt.jar.java.util.regex.js", "/lt/runtime/rt.jar.java.awt.js", "/lt/runtime/rt.jar.sun.util.js", "/lt/runtime/rt.jar.java.util.logging.js", "/lt/runtime/rt.jar.sun.awt.js", "/lt/runtime/rt.jar.java.util.js", "/lt/runtime/rt.jar.java.util.spi.js", "/lts/meta-index", "/lts/meta-index.c0.txt", "/lt/runtime/rt.jar.sun.misc.js", "/lt/runtime/rt.jar.java.net.js", "/lts/rt.jar.c76.txt", "/lts/rt.jar.c77.txt", "/lts/rt.jar.c75.txt", "/lt/runtime/rt.jar.sun.awt.resources.js", "/lt/runtime/rt.jar.java.io.js", "/lt/cheerpj/lib/accessibility.properties", "/lt/runtime/rt.jar.java.lang.invoke.js", "/lt/runtime/rt.jar.sun.js", "/lts/rt.jar.c2.txt", "/lt/runtime/rt.jar.jdk.internal.org.js", "/lts/rt.jar.c27.txt", "/lts/rt.jar.c28.txt", "/lts/rt.jar.c26.txt", "/lt/runtime/rt.jar.java.security.js", "/lt/runtime/rt.jar.sun.awt.util.js", "/lt/runtime/rt.jar.java.util.concurrent.atomic.js", "/lt/runtime/rt.jar.com.js", "/lt/runtime/rt.jar.java.util.concurrent.locks.js", "/lt/runtime/rt.jar.java.beans.js", "/lt/runtime/rt.jar.java.text.js", "/lt/runtime/rt.jar.sun.awt.datatransfer.js", "/lt/cheerpj/lib/content-types.properties", "/lt/runtime/rt.jar.sun.font.js", "/lt/runtime/rt.jar.sun.java2d.js", "/lt/runtime/rt.jar.java.awt.datatransfer.js", "/lt/runtime/rt.jar.com.sun.beans.js", "/lt/runtime/rt.jar.javax.swing.plaf.metal.js", "/lt/cheerpj/lib/swing.properties", "/lt/runtime/rt.jar.java.awt.geom.js", "/lt/runtime/rt.jar.javax.swing.plaf.basic.js", "/lt/runtime/rt.jar.java.awt.font.js", "/lt/runtime/rt.jar.sun.swing.js", "/lt/runtime/rt.jar.javax.swing.event.js", "/lt/runtime/rt.jar.javax.swing.plaf.js", "/lt/runtime/rt.jar.javax.swing.border.js", "/lt/runtime/rt.jar.com.sun.swing.js", "/lt/runtime/rt.jar.com.sun.java.js", "/lt/runtime/rt.jar.javax.js", "/lt/runtime/rt.jar.java.awt.im.js", "/lt/runtime/rt.jar.java.awt.image.js", "/lt/runtime/rt.jar.sun.awt.image.js", "/lt/runtime/rt.jar.sun.java2d.pipe.js", "/lt/runtime/rt.jar.java.awt.event.js", "/lt/runtime/rt.jar.java.util.stream.js", "/lt/cheerpj/lib/security/java.policy", "/lt/runtime/rt.jar.javax.imageio.js", "/lt/runtime/rt.jar.com.sun.imageio.js", "/lt/runtime/rt.jar.com.sun.imageio.plugins.jpeg.js", "/lt/runtime/rt.jar.sun.nio.fs.js", "/lts/rt.jar.c65.txt", "/lts/rt.jar.c66.txt", "/lts/rt.jar.c64.txt", "/lt/cheerpj/lib/security/java.security", "/lts/rt.jar.c20.txt", "/lts/rt.jar.c21.txt", "/lts/rt.jar.c19.txt", "/lt/runtime/rt.jar.sun.security.provider.js", "/lt/runtime/rt.jar.sun.nio.ch.js", "/lt/runtime/rt.jar.java.nio.js", "/lt/cheerpj/DejaVuSans.ttf", "/lt/runtime/rt.jar.java.awt.color.js", "/lt/runtime/rt.jar.sun.java2d.loops.js", "/lt/cheerpj/lib/tzdb.dat", "/lt/runtime/rt.jar.sun.util.locale.js", "/lt/runtime/rt.jar.sun.awt.geom.js", "/lt/cheerpj/lib/ext/localedata.jar", "/lt/runtime/rt.jar.javax.swing.filechooser.js", "/lts/rt.jar.c68.txt", "/lts/rt.jar.c69.txt", "/lts/rt.jar.c67.txt", "/lt/runtime/rt.jar.java.awt.peer.js", "/lt/runtime/rt.jar.java.awt.dnd.js", "/lts/rt.jar.c71.txt", "/lts/rt.jar.c72.txt", "/lts/rt.jar.c70.txt", "/lts/rt.jar.c10.txt", "/lts/rt.jar.c11.txt", "/lts/rt.jar.c9.txt", "/lt/runtime/rt.jar.javax.swing.text.js", "/lt/runtime/rt.jar.sun.awt.dnd.js", "/lt/runtime/rt.jar.com.sun.js", "/lt/runtime/rt.jar.sun.security.js", "/lt/runtime/rt.jar.javax.swing.table.js", "/lt/runtime/rt.jar.sun.awt.shell.js", "/lts/rt.jar.c16.txt", "/lts/rt.jar.c17.txt", "/lts/rt.jar.c15.txt", "/lt/cheerpj/lib/fonts/LucidaSansRegular.ttf", "/lts/rt.jar.c29.txt", "/lts/rt.jar.c30.txt", "/lts/rt.jar.c8.txt", "/lt/cheerpj/lib/fonts/badfonts.txt", "/lt/cheerpj/lib/fonts/index.list", "/lt/cheerpj/lib/fonts/fallback", "/lt/cheerpj/fontconfig.properties", "/lt/runtime/rt.jar.sun.nio.cs.js", "/lts/rt.jar.c73.txt", "/lt/runtime/rt.jar.java.js", "/lt/runtime/rt.jar.sun.java2d.marlin.js", "/lts/rt.jar.c14.txt", "/lts/rt.jar.c13.txt", "/lts/rt.jar.c12.txt", "/lt/runtime/rt.jar.sun.awt.event.js", "/lts/rt.jar.c31.txt", "/lt/runtime/rt.jar.sun.awt.im.js", "/lt/runtime/rt.jar.javax.swing.undo.js", "/lt/runtime/rt.jar.sun.nio.cs.ext.js"]
+  var cheerpjContainer = document.getElementById('cheerpjContainer')
+  cheerpjInit({ preloadResources: preloadList, listener: cheerpjListener });
+  cheerpjCreateDisplay(330, 330, cheerpjContainer);
+  cheerpjRunMain("eastsun.jgvm.plaf.MainFrame", "GVmakerSE.jar");
+
+  document.querySelector('input').addEventListener('change', function () {
+    selectedFiles = this.files;
+    for (let index = 0; index < selectedFiles.length; index++) {
+      var file = selectedFiles[index];
+      var reader = new FileReader();
+      reader.filename = file.name;
+      reader.onload = function () {
+        var arrayBuffer = this.result;
+        array = new Uint8Array(arrayBuffer);
+        cheerpjAddStringFile('/str/' + this.filename, array);
+      }
+      reader.readAsArrayBuffer(file);
+    }
+  }, false);
+</script>
+
+</html>

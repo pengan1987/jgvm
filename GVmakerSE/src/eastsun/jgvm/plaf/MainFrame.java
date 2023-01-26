@@ -6,10 +6,19 @@ import eastsun.jgvm.module.LavApp;
 import eastsun.jgvm.module.io.DefaultFileModel;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -41,7 +50,7 @@ public class MainFrame extends JFrame {
         keyBoard = new KeyBoard();
         gvm = JGVM.newGVM(new GvmConfig(), new DefaultFileModel(new FileSysSE("GVM_ROOT")), keyBoard.getKeyModel());
         screenPane = new ScreenPane(gvm);
-        fileChooser = new JFileChooser("GVM_ROOT");
+        fileChooser = new JFileChooser("/");
         fileChooser.addChoosableFileFilter(new FileFilter() {
 
             public boolean accept(File f) {
@@ -57,7 +66,7 @@ public class MainFrame extends JFrame {
             }
         });
 
-        msgLabel = new JLabel(" 结束");
+        msgLabel = new JLabel(" Stop");
         add(screenPane, BorderLayout.NORTH);
         add(msgLabel, BorderLayout.CENTER);
         add(keyBoard, BorderLayout.SOUTH);
@@ -65,6 +74,7 @@ public class MainFrame extends JFrame {
         setJMenuBar(createMenuBar());
         pack();
         setResizable(false);
+        openDefaultLav();
     }
 
     public static void main(String[] args) {
@@ -91,20 +101,20 @@ public class MainFrame extends JFrame {
 
     private JMenuBar createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
-        JMenu file = new JMenu("文件");
+        JMenu file = new JMenu("File");
         file.addMenuListener(new MenuListener() {
 
             public void menuSelected(MenuEvent e) {
                 if (worker != null && worker.isAlive()) {
                     worker.setPaused(true);
-                    setMsg("暂停");
+                    setMsg("Pause");
                 }
             }
 
             public void menuDeselected(MenuEvent e) {
                 if (worker != null && worker.isAlive()) {
                     worker.setPaused(false);
-                    setMsg("运行");
+                    setMsg("Run");
                 }
             }
 
@@ -113,18 +123,30 @@ public class MainFrame extends JFrame {
             }
         });
         menuBar.add(file);
-        JMenuItem open = new JMenuItem(new AbstractAction("打开") {
+        JMenuItem open = new JMenuItem(new AbstractAction("Open") {
 
             public void actionPerformed(ActionEvent e) {
                 if (worker != null && worker.isAlive()) {
                     worker.setPaused(true);
-                    setMsg("暂停");
+                    setMsg("Pause");
                 }
                 openLavFile();
             }
         });
+        JMenuItem autoload = new JMenuItem(new AbstractAction("Auto Load") {
+
+            public void actionPerformed(ActionEvent e) {
+                if (worker != null && worker.isAlive()) {
+                    worker.setPaused(true);
+                    setMsg("Pause");
+                }
+                openDefaultLav();
+            }
+        });
+       
         file.add(open);
-        file.add(new AbstractAction("退出") {
+        file.add(autoload);
+        file.add(new AbstractAction("Exit") {
 
             public void actionPerformed(ActionEvent e) {
                 if (worker != null && worker.isAlive()) {
@@ -140,13 +162,48 @@ public class MainFrame extends JFrame {
         });
         return menuBar;
     }
+    
+    public static void copyDataDirectory(String sourceDirectory) {
+        File gvmLavaData = new File("GVM_ROOT/LavaData/");
+        if (!gvmLavaData.isDirectory()) {
+            gvmLavaData.mkdirs();
+        }
+        File folder = new File(sourceDirectory);
 
-    private void openLavFile() {
-        int res = fileChooser.showOpenDialog(this);
-        if (res == JFileChooser.APPROVE_OPTION) {
+        if (folder.isDirectory()) {
+            File[] fileList = folder.listFiles();
+            for (File myfile : fileList) {
+                File copied = new File("GVM_ROOT/LavaData/" + myfile.getName());
+                if (myfile.getName().endsWith(".dat")) {
+                    try {
+                        InputStream in = new BufferedInputStream(
+                                new FileInputStream(myfile));
+                        OutputStream out = new BufferedOutputStream(
+                                new FileOutputStream(copied));
+
+                        byte[] buffer = new byte[1024];
+                        int lengthRead;
+                        while ((lengthRead = in.read(buffer)) > 0) {
+                            out.write(buffer, 0, lengthRead);
+                            out.flush();
+                        }
+                    } catch (IOException ex) {
+                        System.out.println(ex);
+                    }
+                }
+            }
+        }
+    }
+    
+    public void openDefaultLav() {
+        File defaultLav = new File("/str/game.lav");
+        if (defaultLav.isFile()) {
             InputStream in = null;
             try {
-                in = new FileInputStream(fileChooser.getSelectedFile());
+                String parentPath = defaultLav.getParent();
+                copyDataDirectory(parentPath);
+                in = new FileInputStream(defaultLav);
+
             } catch (FileNotFoundException ex) {
                 System.err.println(ex);
             }
@@ -162,13 +219,41 @@ public class MainFrame extends JFrame {
             gvm.loadApp(lavApp);
             worker = new Worker();
             worker.start();
-            setMsg("运行");
+            setMsg("Run");
+        }
+    }
+
+    private void openLavFile() {
+        int res = fileChooser.showOpenDialog(this);
+        if (res == JFileChooser.APPROVE_OPTION) {
+            InputStream in = null;
+            try {
+                File selectedfile = fileChooser.getSelectedFile();
+                String parentPath = selectedfile.getParent();
+                copyDataDirectory(parentPath);
+                in = new FileInputStream(selectedfile);
+            } catch (FileNotFoundException ex) {
+                System.err.println(ex);
+            }
+            LavApp lavApp = LavApp.createLavApp(in);
+            if (worker != null && worker.isAlive()) {
+                worker.interrupt();
+                try {
+                    worker.join();
+                } catch (InterruptedException ex) {
+                    System.out.println(ex);
+                }
+            }
+            gvm.loadApp(lavApp);
+            worker = new Worker();
+            worker.start();
+            setMsg("Run");
         } else {
             if (worker != null && worker.isAlive()) {
                 worker.setPaused(false);
-                setMsg("运行");
+                setMsg("Run");
             } else {
-                setMsg("结束");
+                setMsg("Stop");
             }
         }
     }
@@ -202,7 +287,7 @@ public class MainFrame extends JFrame {
                 System.out.println(ex);
             } finally {
                 gvm.dispose();
-                setMsg("结束");
+                setMsg("Stop");
             }
         }
 
