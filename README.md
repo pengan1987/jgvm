@@ -5,6 +5,8 @@ This responsivity show how to port GVmakerSE to HTML5 with CheerpJ, just two ste
 
 The original code is from [Google Code](https://code.google.com/archive/p/jgvm/)
 
+Play the [online demo](https://famicn1-1255835060.file.myqcloud.com/jgvm/example.html) here.
+
 ---
 **[GVmaker](http://www.ggv.com.cn/gvmaker/main.php?content=about_lava)** is a programming language on a PDA product series called '文曲星'. This PDA brand was very popular in China and belongs to _Beijing Golden Global View Computer Technology LTD._
 

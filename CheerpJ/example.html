@@ -15,9 +15,18 @@
   <div id="cheerpjContainer"></div>
   <div>
     <p>加载进度：<span id="loadProgress"></span></p>
+    <p>Select the LAV program and the DAT file it depends on and submit it to the emulator, then select File-Open in the
+      emulator and press the "Up" button to go back to the root directory, you will see the uploaded file in the str
+      folder, select the LAV file and run it.</p>
+    <p>The program needs to load about 20M resource files from overseas CDN, it takes a long time to run for the first
+      time,
+      please wait patiently.</p>
+
     <p>选择Lav程序及其依赖的dat文件提交到模拟器，然后在模拟器中选File-Open，按“向上”按钮回到根目录，在str文件夹中就可以看到上传的文件，选择Lav文件即可运行</p>
     <p>程序需要从海外CDN加载约20M资源文件，初次运行耗时较长，请耐心等待</p>
     <input type="file" multiple="multiple" accept=".lav,.dat" />
+    <button onclick="loadZippedGame('wawa_richman.zip')">Load 蛙蛙大富翁</button>
+    <button onclick="loadZippedGame('shenzhou.zip')">Load 神州</button>
   </div>
 </body>
 <script>
@@ -35,6 +44,7 @@
       fileu8 = await file.async("uint8array");
       cheerpjAddStringFile('/str/' + filename, fileu8);
     }
+    cjCall('eastsun.jgvm.plaf.MainFrame', 'reopenDefaultLav');
   }
 
   function showPreloadProgress(loadedFiles, totalFiles) {
